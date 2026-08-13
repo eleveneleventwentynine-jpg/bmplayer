@@ -1,0 +1,53 @@
+name: bmplayer
+description: "bmplayer — a next-gen glassmorphic media player for audio, video, and streaming."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Playback engines
+  just_audio: ^0.9.40
+  just_audio_background: ^0.0.1-beta.13
+  video_player: ^2.9.1
+  audio_session: ^0.1.21
+
+  # Media / library
+  on_audio_query: ^2.9.0
+  photo_manager: ^3.6.1
+  file_picker: ^8.1.2
+  path_provider: ^2.1.4
+  permission_handler: ^11.3.1
+
+  # Streaming source (YouTube search + stream resolution, pure Dart)
+  youtube_explode_dart: ^2.3.9
+
+  # Visual identity
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  palette_generator: ^0.3.3+3
+  cached_network_image: ^3.4.1
+  blur: ^4.0.0
+  shimmer: ^3.0.0
+
+  # Networking / streaming sources
+  dio: ^5.7.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+  fonts: []

@@ -5,6 +5,28 @@ with a glassmorphic "Ambient Bloom" design system: frosted glass surfaces
 floating over a background that tints itself from whatever's currently
 playing.
 
+## What's new
+
+- **Persistence (sqflite).** `lib/services/database_service.dart` stores
+  playlists and favorites in a real SQLite database
+  (`lib/state/playlists_controller.dart`, `favorites_controller.dart`).
+  Long-press a playlist card on Home to rename/delete it; tap "New
+  playlist" to create one; tap the heart on the now-playing sheet to
+  favorite a track — all of it survives app restarts.
+- **Queue / reorder.** The now-playing sheet's "⋯" button opens a
+  draggable "Up next" sheet (`lib/features/now_playing/queue_screen.dart`)
+  — reorder by dragging, tap any row to jump to it, tap ✕ to remove.
+  Backed by `PlayerService.reorderQueue/removeFromQueue/jumpTo`, which
+  track the currently-playing item by identity so a reorder never causes
+  a surprise playback jump.
+- **iOS pass.** `LibraryService` now requests audio (Apple Music /
+  MPMediaLibrary) and video (Photos) permissions independently, since iOS
+  treats them separately, and degrades gracefully if only one is granted.
+  `PlayerService` configures `audio_session` on startup so background
+  playback, lock-screen controls, and interruption handling (phone calls,
+  other apps, headphones unplugged) behave correctly — this also improves
+  Android audio-focus behavior, not just iOS.
+
 ## What's here
 
 This is the `lib/` source tree — the app's architecture, theme, state
@@ -83,7 +105,17 @@ lib/
    <dict><key>NSAllowsArbitraryLoads</key><true/></dict>
    <key>UIBackgroundModes</key>
    <array><string>audio</string></array>
+   <key>NSAppleMusicUsageDescription</key>
+   <string>bmplayer needs access to your music library to play your songs.</string>
+   <key>NSPhotoLibraryUsageDescription</key>
+   <string>bmplayer needs access to your video library to play your videos.</string>
    ```
+   `NSAppleMusicUsageDescription` covers `on_audio_query`'s access to the
+   Apple Music / MPMediaLibrary catalogue; `NSPhotoLibraryUsageDescription`
+   covers `photo_manager`'s access to videos. bmplayer requests these as
+   two independent permissions (see `LibraryService.requestPermissions`)
+   and will still show whichever half was granted if the person only
+   allows one.
 
 5. Run it:
    ```

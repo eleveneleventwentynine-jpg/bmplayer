@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/media_item.dart';
 import '../models/playlist.dart';
-import '../services/demo_data.dart';
+import '../services/database_service.dart';
 import '../services/library_service.dart';
 import '../services/player_service.dart';
 import '../services/youtube_streaming_source.dart';
 import 'discover_controller.dart';
+import 'favorites_controller.dart';
 import 'library_controller.dart';
+import 'playlists_controller.dart';
 
 final playerServiceProvider =
     StateNotifierProvider<PlayerService, PlaybackState>(
@@ -22,7 +25,19 @@ final libraryControllerProvider =
   (ref) => LibraryController(ref.read(libraryServiceProvider)),
 );
 
-final playlistsProvider = Provider<List<BmPlaylist>>((ref) => demoPlaylists);
+// --- Persistence: playlists & favorites ---------------------------------
+
+final databaseServiceProvider = Provider<DatabaseService>((ref) => DatabaseService());
+
+final playlistsControllerProvider =
+    StateNotifierProvider<PlaylistsController, List<BmPlaylist>>(
+  (ref) => PlaylistsController(ref.read(databaseServiceProvider)),
+);
+
+final favoritesControllerProvider =
+    StateNotifierProvider<FavoritesController, List<BmMediaItem>>(
+  (ref) => FavoritesController(ref.read(databaseServiceProvider)),
+);
 
 // --- Streaming / discover -----------------------------------------------
 

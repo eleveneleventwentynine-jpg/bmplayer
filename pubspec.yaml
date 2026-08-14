@@ -29,6 +29,10 @@ dependencies:
   # Streaming source (YouTube search + stream resolution, pure Dart)
   youtube_explode_dart: ^2.3.9
 
+  # Persistence
+  sqflite: ^2.3.3+1
+  shared_preferences: ^2.3.2
+
   # Visual identity
   google_fonts: ^6.2.1
   flutter_animate: ^4.5.0

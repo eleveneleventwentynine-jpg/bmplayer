@@ -9,6 +9,7 @@ import '../../core/widgets/media_artwork.dart';
 import '../../models/media_item.dart';
 import '../../services/player_service.dart';
 import '../../state/providers.dart';
+import 'queue_screen.dart';
 import 'widgets/glass_seek_bar.dart';
 
 class NowPlayingScreen extends ConsumerWidget {
@@ -19,6 +20,8 @@ class NowPlayingScreen extends ConsumerWidget {
     final playback = ref.watch(playerServiceProvider);
     final playerService = ref.read(playerServiceProvider.notifier);
     final item = playback.current;
+    final favorites = ref.watch(favoritesControllerProvider);
+    final isFavorite = item != null && favorites.any((e) => e.id == item.id);
 
     if (item == null) {
       return const SizedBox.shrink();
@@ -44,7 +47,7 @@ class NowPlayingScreen extends ConsumerWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.more_horiz_rounded),
-                  onPressed: () {},
+                  onPressed: () => showQueueSheet(context),
                 ),
               ],
             ),
@@ -82,8 +85,12 @@ class NowPlayingScreen extends ConsumerWidget {
                 AnimatedWaveform(isPlaying: playback.isPlaying, height: 26),
                 const SizedBox(width: 4),
                 IconButton(
-                  icon: const Icon(Icons.favorite_border_rounded),
-                  onPressed: () {},
+                  icon: Icon(
+                    isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: isFavorite ? AppColors.flareCoral : null,
+                  ),
+                  onPressed: () =>
+                      ref.read(favoritesControllerProvider.notifier).toggle(item),
                 ),
               ],
             ),

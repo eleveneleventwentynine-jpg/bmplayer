@@ -40,10 +40,20 @@ class LibraryService {
     }
 
     if (Platform.isIOS) {
-      final result = await pm.PhotoManager.requestPermissionExtend();
-      return result.isAuth
-          ? LibraryPermissionStatus.granted
-          : LibraryPermissionStatus.denied;
+      // iOS treats the audio (Apple Music / MPMediaLibrary) and video
+      // (Photos) libraries as two separate permission grants — request
+      // both, and treat it as usable if either succeeds, since
+      // `scanAudio`/`scanVideos` already degrade gracefully to an empty
+      // list for whichever half wasn't granted.
+      final audioStatus = await _audioQuery.permissionsStatus();
+      final audioGranted =
+          audioStatus ? true : await _audioQuery.permissionsRequest();
+      final photoResult = await pm.PhotoManager.requestPermissionExtend();
+
+      if (audioGranted || photoResult.isAuth) {
+        return LibraryPermissionStatus.granted;
+      }
+      return LibraryPermissionStatus.denied;
     }
 
     return LibraryPermissionStatus.granted;
@@ -119,7 +129,13 @@ class LibraryService {
   }
 
   Future<List<BmMediaItem>> scanAll() async {
-    final results = await Future.wait([scanAudio(), scanVideos()]);
+    // Scan independently and tolerate one half failing (e.g. iOS with only
+    // audio or only photo-library access granted) rather than letting one
+    // rejected permission wipe out both.
+    final results = await Future.wait([
+      scanAudio().catchError((_) => <BmMediaItem>[]),
+      scanVideos().catchError((_) => <BmMediaItem>[]),
+    ]);
     return [...results[0], ...results[1]];
   }
 }

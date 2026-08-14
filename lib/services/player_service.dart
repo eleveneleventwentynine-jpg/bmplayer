@@ -6,6 +6,7 @@ import 'package:video_player/video_player.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:photo_manager/photo_manager.dart' as pm;
+import 'package:audio_session/audio_session.dart';
 
 import '../models/media_item.dart';
 
@@ -92,6 +93,7 @@ class PlaybackState {
 /// behind one API.
 class PlayerService extends StateNotifier<PlaybackState> {
   PlayerService() : super(const PlaybackState()) {
+    _configureAudioSession();
     _audioPlayer.playerStateStream.listen(_onAudioPlayerState);
     _audioPlayer.positionStream.listen((p) {
       if (state.current?.kind == MediaKind.audio) {
@@ -107,6 +109,46 @@ class PlayerService extends StateNotifier<PlaybackState> {
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   VideoPlayerController? _videoController;
+
+  /// Configures the platform audio session for media playback. On iOS this
+  /// is what makes background audio, lock-screen controls, and correct
+  /// interruption behavior (phone calls, Siri, other apps) actually work —
+  /// without it, just_audio falls back to platform defaults that aren't
+  /// tuned for a media player. `music` mode also tells iOS this is
+  /// long-form audio playback rather than a transient sound effect, and
+  /// duckOthers lets navigation/notification sounds duck bmplayer briefly
+  /// rather than being blocked entirely.
+  Future<void> _configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playback,
+      avAudioSessionCategoryOptions:
+          AVAudioSessionCategoryOptions.duckOthers,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+      androidAudioAttributes: AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.music,
+        usage: AndroidAudioUsage.media,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+      androidWillPauseWhenDucked: true,
+    ));
+
+    // Pause on interruptions (phone calls, another app taking audio
+    // focus). Deliberately not auto-resuming when the interruption ends —
+    // resuming audio without the person tapping play is a worse surprise
+    // than requiring one extra tap.
+    session.interruptionEventStream.listen((event) {
+      if (event.begin && state.isPlaying) {
+        togglePlayPause();
+      }
+    });
+
+    session.becomingNoisyEventStream.listen((_) {
+      // Headphones unplugged / output device changed — pause rather than
+      // suddenly playing out loud.
+      if (state.isPlaying) togglePlayPause();
+    });
+  }
 
   void _onAudioPlayerState(PlayerState s) {
     state = state.copyWith(
@@ -285,6 +327,64 @@ class PlayerService extends StateNotifier<PlaybackState> {
       RepeatMode.one => RepeatMode.off,
     };
     state = state.copyWith(repeatMode: next);
+  }
+
+  // --- Queue management --------------------------------------------
+
+  /// Jumps directly to [index] in the current queue and starts playback.
+  Future<void> jumpTo(int index) async {
+    if (index < 0 || index >= state.queue.length) return;
+    state = state.copyWith(currentIndex: index);
+    await _loadCurrent();
+  }
+
+  /// Appends [item] to the end of the queue without interrupting playback.
+  void addToQueue(BmMediaItem item) {
+    state = state.copyWith(queue: [...state.queue, item]);
+  }
+
+  /// Removes the item at [index]. If it's the currently playing item,
+  /// playback advances to whatever now sits at that position (or stops if
+  /// the queue is empty afterward).
+  Future<void> removeFromQueue(int index) async {
+    if (index < 0 || index >= state.queue.length) return;
+    final removingCurrent = index == state.currentIndex;
+    final newQueue = [...state.queue]..removeAt(index);
+
+    if (newQueue.isEmpty) {
+      state = state.copyWith(
+        queue: [],
+        currentIndex: -1,
+        isPlaying: false,
+        clearVideoController: true,
+      );
+      await _audioPlayer.stop();
+      return;
+    }
+
+    var newIndex = state.currentIndex;
+    if (index < state.currentIndex) {
+      newIndex -= 1;
+    } else if (removingCurrent) {
+      newIndex = newIndex.clamp(0, newQueue.length - 1);
+    }
+
+    state = state.copyWith(queue: newQueue, currentIndex: newIndex);
+    if (removingCurrent) await _loadCurrent();
+  }
+
+  /// Reorders the queue (e.g. from a drag-and-drop reorder screen) while
+  /// keeping the currently playing item correctly tracked by identity
+  /// rather than by index, so a reorder never causes a playback jump.
+  void reorderQueue(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) newIndex -= 1;
+    final playingId = state.current?.id;
+    final newQueue = [...state.queue];
+    final moved = newQueue.removeAt(oldIndex);
+    newQueue.insert(newIndex, moved);
+    final newCurrentIndex =
+        playingId == null ? state.currentIndex : newQueue.indexWhere((e) => e.id == playingId);
+    state = state.copyWith(queue: newQueue, currentIndex: newCurrentIndex);
   }
 
   @override

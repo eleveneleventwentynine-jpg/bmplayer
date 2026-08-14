@@ -18,7 +18,7 @@ class HomeScreen extends ConsumerWidget {
     final libraryState = ref.watch(libraryControllerProvider);
     final continueListening = libraryState.continueListening;
     final library = libraryState.items;
-    final playlists = ref.watch(playlistsProvider);
+    final playlists = ref.watch(playlistsControllerProvider);
     final playback = ref.watch(playerServiceProvider);
     final playerService = ref.read(playerServiceProvider.notifier);
 
@@ -125,11 +125,19 @@ class HomeScreen extends ConsumerWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: playlists.length,
+              itemCount: playlists.length + 1,
               separatorBuilder: (_, __) => const SizedBox(width: 14),
               itemBuilder: (context, i) {
+                if (i == playlists.length) {
+                  return _CreatePlaylistCard(
+                    onCreate: (name) =>
+                        ref.read(playlistsControllerProvider.notifier).create(name),
+                  );
+                }
                 final pl = playlists[i];
-                return GlassContainer(
+                return GestureDetector(
+                  onLongPress: () => _showPlaylistOptions(context, ref, pl.id, pl.name),
+                  child: GlassContainer(
                   borderRadius: 18,
                   onTap: () {
                     if (pl.items.isNotEmpty) {
@@ -175,6 +183,7 @@ class HomeScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  ),
                 );
               },
             ),
@@ -184,4 +193,124 @@ class HomeScreen extends ConsumerWidget {
       ],
     );
   }
+}
+
+class _CreatePlaylistCard extends StatelessWidget {
+  const _CreatePlaylistCard({required this.onCreate});
+  final ValueChanged<String> onCreate;
+
+  Future<void> _openDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.void1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('New playlist'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Playlist name'),
+          onSubmitted: (v) => Navigator.pop(context, v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+    if (name != null && name.trim().isNotEmpty) onCreate(name.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassContainer(
+      borderRadius: 18,
+      onTap: () => _openDialog(context),
+      child: const SizedBox(
+        width: 128,
+        height: 168,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add_rounded, color: AppColors.driftAqua, size: 28),
+              SizedBox(height: 6),
+              Text('New playlist', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _showPlaylistOptions(
+  BuildContext context,
+  WidgetRef ref,
+  String playlistId,
+  String currentName,
+) async {
+  await showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Padding(
+      padding: const EdgeInsets.all(16),
+      child: GlassContainer(
+        borderRadius: 20,
+        strong: true,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_rounded),
+              title: const Text('Rename'),
+              onTap: () async {
+                Navigator.pop(context);
+                final controller = TextEditingController(text: currentName);
+                final name = await showDialog<String>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: AppColors.void1,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    title: const Text('Rename playlist'),
+                    content: TextField(controller: controller, autofocus: true),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel')),
+                      FilledButton(
+                          onPressed: () => Navigator.pop(context, controller.text),
+                          child: const Text('Save')),
+                    ],
+                  ),
+                );
+                if (name != null && name.trim().isNotEmpty) {
+                  ref
+                      .read(playlistsControllerProvider.notifier)
+                      .rename(playlistId, name.trim());
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+              title: const Text('Delete playlist'),
+              onTap: () {
+                Navigator.pop(context);
+                ref.read(playlistsControllerProvider.notifier).delete(playlistId);
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

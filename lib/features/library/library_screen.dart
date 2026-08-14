@@ -31,6 +31,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final libraryState = ref.watch(libraryControllerProvider);
+    final favorites = ref.watch(favoritesControllerProvider);
     final playback = ref.watch(playerServiceProvider);
     final playerService = ref.read(playerServiceProvider.notifier);
 
@@ -110,6 +111,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           _sectionCard(audio, playback, play),
           _sectionHeader(context, 'Videos'),
           _sectionCard(video, playback, play),
+          if (favorites.isNotEmpty) ...[
+            _sectionHeader(context, 'Favorites'),
+            _sectionCard(favorites, playback, play),
+          ],
           const SliverToBoxAdapter(child: SizedBox(height: 140)),
         ],
       ),

@@ -78,4 +78,41 @@ class BmMediaItem {
       sourceLabel: sourceLabel,
     );
   }
+
+  /// Serialized for storage (playlists, favorites) in [DatabaseService].
+  /// Network items are safe to persist this way even though their
+  /// [sourceUri] may go stale — playback call sites re-resolve network
+  /// items through their [StreamingSource] before playing rather than
+  /// trusting a stored URI.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'artist': artist,
+        'album': album,
+        'kind': kind.name,
+        'origin': origin.name,
+        'sourceUri': sourceUri,
+        'artworkUri': artworkUri,
+        'durationMs': duration?.inMilliseconds,
+        'bitrateKbps': bitrateKbps,
+        'sizeBytes': sizeBytes,
+        'sourceLabel': sourceLabel,
+      };
+
+  factory BmMediaItem.fromJson(Map<String, dynamic> json) => BmMediaItem(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        artist: json['artist'] as String,
+        album: json['album'] as String?,
+        kind: MediaKind.values.byName(json['kind'] as String),
+        origin: MediaOrigin.values.byName(json['origin'] as String),
+        sourceUri: json['sourceUri'] as String,
+        artworkUri: json['artworkUri'] as String?,
+        duration: json['durationMs'] != null
+            ? Duration(milliseconds: json['durationMs'] as int)
+            : null,
+        bitrateKbps: json['bitrateKbps'] as int?,
+        sizeBytes: json['sizeBytes'] as int?,
+        sourceLabel: json['sourceLabel'] as String?,
+      );
 }

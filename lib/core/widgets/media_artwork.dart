@@ -59,8 +59,8 @@ class MediaArtwork extends StatelessWidget {
           : QueryArtworkWidget(
               id: id,
               type: ArtworkType.AUDIO,
-              artworkWidth: width,
-              artworkHeight: height,
+              artworkWidth: width ?? 48,
+              artworkHeight: height ?? 48,
               artworkFit: fit,
               artworkBorder: BorderRadius.zero,
               nullArtworkWidget: _fallback(),

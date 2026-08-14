@@ -5,7 +5,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/widgets/glass_container.dart';
 import '../../models/media_item.dart';
 import '../../state/discover_controller.dart';
-import '../../state/library_controller.dart';
 import '../../state/providers.dart';
 import '../home/widgets/media_row.dart';
 

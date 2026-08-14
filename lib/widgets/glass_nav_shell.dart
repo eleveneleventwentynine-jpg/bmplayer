@@ -8,7 +8,6 @@ import '../features/discover/discover_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/now_playing/now_playing_screen.dart';
-import '../state/library_controller.dart';
 import '../state/providers.dart';
 import 'mini_player.dart';
 

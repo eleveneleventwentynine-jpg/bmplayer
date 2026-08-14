@@ -32,6 +32,7 @@ dependencies:
   # Persistence
   sqflite: ^2.3.3+1
   shared_preferences: ^2.3.2
+  path: ^1.9.0
 
   # Visual identity
   google_fonts: ^6.2.1

@@ -44,10 +44,9 @@ class PlaybackState {
   /// Live video controller when [current]?.kind == MediaKind.video.
   final VideoPlayerController? videoController;
 
-  BmMediaItem? get current =>
-      (currentIndex >= 0 && currentIndex < queue.length)
-          ? queue[currentIndex]
-          : null;
+  BmMediaItem? get current => (currentIndex >= 0 && currentIndex < queue.length)
+      ? queue[currentIndex]
+      : null;
 
   Duration get duration => current?.duration ?? Duration.zero;
 
@@ -122,8 +121,7 @@ class PlayerService extends StateNotifier<PlaybackState> {
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration(
       avAudioSessionCategory: AVAudioSessionCategory.playback,
-      avAudioSessionCategoryOptions:
-          AVAudioSessionCategoryOptions.duckOthers,
+      avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
       avAudioSessionMode: AVAudioSessionMode.defaultMode,
       androidAudioAttributes: AndroidAudioAttributes(
         contentType: AndroidAudioContentType.music,
@@ -382,8 +380,9 @@ class PlayerService extends StateNotifier<PlaybackState> {
     final newQueue = [...state.queue];
     final moved = newQueue.removeAt(oldIndex);
     newQueue.insert(newIndex, moved);
-    final newCurrentIndex =
-        playingId == null ? state.currentIndex : newQueue.indexWhere((e) => e.id == playingId);
+    final newCurrentIndex = playingId == null
+        ? state.currentIndex
+        : newQueue.indexWhere((e) => e.id == playingId);
     state = state.copyWith(queue: newQueue, currentIndex: newCurrentIndex);
   }
 

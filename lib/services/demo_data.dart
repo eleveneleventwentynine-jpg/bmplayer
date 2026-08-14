@@ -6,7 +6,7 @@ import '../models/playlist.dart';
 /// and [demoStreamingResults] for a real [StreamingSource] implementation
 /// when wiring this up to actual media.
 final List<BmMediaItem> demoLibrary = [
-  BmMediaItem(
+  const BmMediaItem(
     id: 'a1',
     title: 'Night Drive',
     artist: 'Kelora',
@@ -18,7 +18,7 @@ final List<BmMediaItem> demoLibrary = [
     duration: const Duration(minutes: 3, seconds: 42),
     bitrateKbps: 320,
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 'a2',
     title: 'Glass Cities',
     artist: 'Fault Line',
@@ -30,7 +30,7 @@ final List<BmMediaItem> demoLibrary = [
     duration: const Duration(minutes: 4, seconds: 5),
     bitrateKbps: 256,
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 'a3',
     title: 'Low Orbit',
     artist: 'Halide',
@@ -42,7 +42,7 @@ final List<BmMediaItem> demoLibrary = [
     duration: const Duration(minutes: 2, seconds: 58),
     bitrateKbps: 320,
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 'v1',
     title: 'Dar es Salaam Timelapse',
     artist: 'Field Notes Studio',
@@ -52,7 +52,7 @@ final List<BmMediaItem> demoLibrary = [
     artworkUri: 'https://picsum.photos/seed/bm-v1/800/450',
     duration: const Duration(minutes: 6, seconds: 21),
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 'a4',
     title: 'Paper Moons',
     artist: 'Kelora',
@@ -64,7 +64,7 @@ final List<BmMediaItem> demoLibrary = [
     duration: const Duration(minutes: 3, seconds: 15),
     bitrateKbps: 320,
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 'v2',
     title: 'Studio Session — Live Cut',
     artist: 'Fault Line',
@@ -93,7 +93,7 @@ final List<BmPlaylist> demoPlaylists = [
 
 /// Stand-in for results returned by a real [StreamingSource].
 final List<BmMediaItem> demoStreamingResults = [
-  BmMediaItem(
+  const BmMediaItem(
     id: 's1',
     title: 'Open Water',
     artist: 'Marrow',
@@ -104,7 +104,7 @@ final List<BmMediaItem> demoStreamingResults = [
     duration: const Duration(minutes: 3, seconds: 51),
     sourceLabel: 'Direct link',
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 's2',
     title: 'Concrete Bloom',
     artist: 'Halide',
@@ -115,7 +115,7 @@ final List<BmMediaItem> demoStreamingResults = [
     duration: const Duration(minutes: 4, seconds: 22),
     sourceLabel: 'SoundCloud',
   ),
-  BmMediaItem(
+  const BmMediaItem(
     id: 's3',
     title: 'Rooftop Sessions Vol. 3',
     artist: 'Various Artists',

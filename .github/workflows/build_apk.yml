@@ -116,9 +116,18 @@ jobs:
               print("All required permissions already present.")
           PY
 
-      - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed .
-        continue-on-error: true
+      # Auto-formats the code and commits the result back to the branch,
+      # so nobody has to remember to run `dart format` locally. Skipped on
+      # PRs from forks, which don't have write access to push a commit.
+      - name: Format code
+        run: dart format .
+
+      - name: Commit formatting changes
+        if: github.event_name == 'push'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-format with dart format [skip ci]"
+          file_pattern: "*.dart"
 
       - name: Analyze
         run: flutter analyze

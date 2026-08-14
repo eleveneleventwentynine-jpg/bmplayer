@@ -107,15 +107,15 @@ class _GlassNavShellState extends ConsumerState<GlassNavShell> {
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 250),
                     opacity: expanded ? 1 : 0,
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
+                    child: const DecoratedBox(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [AppColors.void1, AppColors.void2],
                         ),
                       ),
-                      child: const NowPlayingScreen(),
+                      child: NowPlayingScreen(),
                     ),
                   ),
                 ),

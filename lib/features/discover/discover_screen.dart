@@ -64,7 +64,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Search YouTube…',
-                  hintStyle: TextStyle(color: AppColors.textFaint),
+                  hintStyle: const TextStyle(color: AppColors.textFaint),
                   icon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
                   suffixIcon: discover.status == DiscoverStatus.searching
                       ? const Padding(

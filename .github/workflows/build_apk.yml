@@ -122,7 +122,12 @@ jobs:
       # (e.g. on_audio_query) don't declare `namespace` in their own
       # build.gradle, which AGP 8+ requires — this fails the build with
       # "Namespace not specified" otherwise, and can't be fixed from the
-      # app side except by patching Gradle's evaluation like this.
+      # app side except by patching Gradle's evaluation like this. Hooks
+      # into plugin application (plugins.withId) rather than
+      # subproject.afterEvaluate, since afterEvaluate throws
+      # "already evaluated" once Gradle's own evaluation ordering runs
+      # ahead of ours — plugin application always fires safely regardless
+      # of each subproject's evaluation state.
       - name: Patch Android namespace fallback for legacy plugins
         run: |
           MARKER="bmplayer: namespace fallback for legacy plugins"
@@ -134,20 +139,26 @@ jobs:
           // Backfills a missing Android Gradle `namespace` from each
           // plugin's own AndroidManifest.xml `package` attribute, for
           // plugins that haven't been updated for AGP 8's requirement
-          // that every module declare one explicitly.
+          // that every module declare one explicitly. Runs on plugin
+          // application, not afterEvaluate, so it can't collide with
+          // Gradle's own evaluation ordering.
           subprojects { subproject ->
-              subproject.afterEvaluate { evaluatedProject ->
-                  def androidExtension = evaluatedProject.extensions.findByName('android')
-                  if (androidExtension != null &&
-                      androidExtension.hasProperty('namespace') &&
-                      androidExtension.namespace == null) {
-                      def manifestFile = evaluatedProject.file('src/main/AndroidManifest.xml')
-                      if (manifestFile.exists()) {
-                          def manifestXml = new XmlSlurper().parse(manifestFile)
-                          def packageName = manifestXml.@package?.text()
-                          if (packageName) {
-                              androidExtension.namespace = packageName
+              subproject.plugins.withId("com.android.library") {
+                  def androidExtension = subproject.extensions.findByName('android')
+                  if (androidExtension != null) {
+                      try {
+                          if (androidExtension.namespace == null) {
+                              def manifestFile = subproject.file('src/main/AndroidManifest.xml')
+                              if (manifestFile.exists()) {
+                                  def manifestXml = new XmlSlurper().parse(manifestFile)
+                                  def packageName = manifestXml.@package?.text()
+                                  if (packageName) {
+                                      androidExtension.namespace = packageName
+                                  }
+                              }
                           }
+                      } catch (ignored) {
+                          // AGP without a settable `namespace` property — nothing to backfill.
                       }
                   }
               }

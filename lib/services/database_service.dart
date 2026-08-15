@@ -94,8 +94,7 @@ class DatabaseService {
 
   Future<void> deletePlaylist(String playlistId) async {
     final db = await _database;
-    await db.delete('playlist_tracks',
-        where: 'playlist_id = ?', whereArgs: [playlistId]);
+    await db.delete('playlist_tracks', where: 'playlist_id = ?', whereArgs: [playlistId]);
     await db.delete('playlists', where: 'id = ?', whereArgs: [playlistId]);
   }
 
@@ -119,8 +118,7 @@ class DatabaseService {
     });
   }
 
-  Future<void> removeTrackFromPlaylist(
-      String playlistId, String mediaId) async {
+  Future<void> removeTrackFromPlaylist(String playlistId, String mediaId) async {
     final db = await _database;
     final rows = await db.query(
       'playlist_tracks',
@@ -128,8 +126,7 @@ class DatabaseService {
       whereArgs: [playlistId],
       orderBy: 'position ASC',
     );
-    await db.delete('playlist_tracks',
-        where: 'playlist_id = ?', whereArgs: [playlistId]);
+    await db.delete('playlist_tracks', where: 'playlist_id = ?', whereArgs: [playlistId]);
 
     var position = 0;
     final batch = db.batch();
@@ -151,8 +148,7 @@ class DatabaseService {
     List<BmMediaItem> newOrder,
   ) async {
     final db = await _database;
-    await db.delete('playlist_tracks',
-        where: 'playlist_id = ?', whereArgs: [playlistId]);
+    await db.delete('playlist_tracks', where: 'playlist_id = ?', whereArgs: [playlistId]);
     final batch = db.batch();
     for (var i = 0; i < newOrder.length; i++) {
       batch.insert('playlist_tracks', {
@@ -177,8 +173,7 @@ class DatabaseService {
 
   Future<bool> isFavorite(String mediaId) async {
     final db = await _database;
-    final rows = await db
-        .query('favorites', where: 'media_id = ?', whereArgs: [mediaId]);
+    final rows = await db.query('favorites', where: 'media_id = ?', whereArgs: [mediaId]);
     return rows.isNotEmpty;
   }
 

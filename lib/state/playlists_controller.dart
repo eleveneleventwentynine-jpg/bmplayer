@@ -42,16 +42,12 @@ class PlaylistsController extends StateNotifier<List<BmPlaylist>> {
     await load();
   }
 
-  Future<void> reorderTracks(
-      String playlistId, List<BmMediaItem> newOrder) async {
+  Future<void> reorderTracks(String playlistId, List<BmMediaItem> newOrder) async {
     // Optimistic local update so the drag feels instant, then persist.
     state = [
       for (final pl in state)
-        if (pl.id == playlistId)
-          BmPlaylist(
-              id: pl.id, name: pl.name, items: newOrder, coverUri: pl.coverUri)
-        else
-          pl,
+        if (pl.id == playlistId) BmPlaylist(id: pl.id, name: pl.name, items: newOrder, coverUri: pl.coverUri)
+        else pl,
     ];
     await _db.reorderPlaylistTracks(playlistId, newOrder);
   }

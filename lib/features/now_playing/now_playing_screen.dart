@@ -42,9 +42,7 @@ class NowPlayingScreen extends ConsumerWidget {
                 ),
                 Text(
                   item.sourceLabel ??
-                      (item.origin == MediaOrigin.local
-                          ? 'On this device'
-                          : 'Streaming'),
+                      (item.origin == MediaOrigin.local ? 'On this device' : 'Streaming'),
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 IconButton(
@@ -56,8 +54,7 @@ class NowPlayingScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             Expanded(
               child: Center(
-                child: item.kind == MediaKind.video &&
-                        playback.videoController != null
+                child: item.kind == MediaKind.video && playback.videoController != null
                     ? _VideoStage(controller: playback.videoController!)
                     : _ArtworkStage(item: item),
               ),
@@ -89,14 +86,11 @@ class NowPlayingScreen extends ConsumerWidget {
                 const SizedBox(width: 4),
                 IconButton(
                   icon: Icon(
-                    isFavorite
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
+                    isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                     color: isFavorite ? AppColors.flareCoral : null,
                   ),
-                  onPressed: () => ref
-                      .read(favoritesControllerProvider.notifier)
-                      .toggle(item),
+                  onPressed: () =>
+                      ref.read(favoritesControllerProvider.notifier).toggle(item),
                 ),
               ],
             ),

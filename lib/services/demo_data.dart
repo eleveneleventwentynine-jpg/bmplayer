@@ -15,7 +15,7 @@ final List<BmMediaItem> demoLibrary = [
     origin: MediaOrigin.local,
     sourceUri: '/storage/emulated/0/Music/night_drive.mp3',
     artworkUri: 'https://picsum.photos/seed/bm-a1/600/600',
-    duration: const Duration(minutes: 3, seconds: 42),
+    duration: Duration(minutes: 3, seconds: 42),
     bitrateKbps: 320,
   ),
   const BmMediaItem(
@@ -27,7 +27,7 @@ final List<BmMediaItem> demoLibrary = [
     origin: MediaOrigin.local,
     sourceUri: '/storage/emulated/0/Music/glass_cities.mp3',
     artworkUri: 'https://picsum.photos/seed/bm-a2/600/600',
-    duration: const Duration(minutes: 4, seconds: 5),
+    duration: Duration(minutes: 4, seconds: 5),
     bitrateKbps: 256,
   ),
   const BmMediaItem(
@@ -39,7 +39,7 @@ final List<BmMediaItem> demoLibrary = [
     origin: MediaOrigin.local,
     sourceUri: '/storage/emulated/0/Music/low_orbit.mp3',
     artworkUri: 'https://picsum.photos/seed/bm-a3/600/600',
-    duration: const Duration(minutes: 2, seconds: 58),
+    duration: Duration(minutes: 2, seconds: 58),
     bitrateKbps: 320,
   ),
   const BmMediaItem(
@@ -50,7 +50,7 @@ final List<BmMediaItem> demoLibrary = [
     origin: MediaOrigin.local,
     sourceUri: '/storage/emulated/0/Movies/dar_timelapse.mp4',
     artworkUri: 'https://picsum.photos/seed/bm-v1/800/450',
-    duration: const Duration(minutes: 6, seconds: 21),
+    duration: Duration(minutes: 6, seconds: 21),
   ),
   const BmMediaItem(
     id: 'a4',
@@ -61,7 +61,7 @@ final List<BmMediaItem> demoLibrary = [
     origin: MediaOrigin.local,
     sourceUri: '/storage/emulated/0/Music/paper_moons.mp3',
     artworkUri: 'https://picsum.photos/seed/bm-a4/600/600',
-    duration: const Duration(minutes: 3, seconds: 15),
+    duration: Duration(minutes: 3, seconds: 15),
     bitrateKbps: 320,
   ),
   const BmMediaItem(
@@ -72,7 +72,7 @@ final List<BmMediaItem> demoLibrary = [
     origin: MediaOrigin.local,
     sourceUri: '/storage/emulated/0/Movies/studio_session.mp4',
     artworkUri: 'https://picsum.photos/seed/bm-v2/800/450',
-    duration: const Duration(minutes: 12, seconds: 4),
+    duration: Duration(minutes: 12, seconds: 4),
   ),
 ];
 
@@ -101,7 +101,7 @@ final List<BmMediaItem> demoStreamingResults = [
     origin: MediaOrigin.network,
     sourceUri: 'https://example-cdn.com/stream/open-water.mp3',
     artworkUri: 'https://picsum.photos/seed/bm-s1/600/600',
-    duration: const Duration(minutes: 3, seconds: 51),
+    duration: Duration(minutes: 3, seconds: 51),
     sourceLabel: 'Direct link',
   ),
   const BmMediaItem(
@@ -112,7 +112,7 @@ final List<BmMediaItem> demoStreamingResults = [
     origin: MediaOrigin.network,
     sourceUri: 'https://example-cdn.com/stream/concrete-bloom.mp3',
     artworkUri: 'https://picsum.photos/seed/bm-s2/600/600',
-    duration: const Duration(minutes: 4, seconds: 22),
+    duration: Duration(minutes: 4, seconds: 22),
     sourceLabel: 'SoundCloud',
   ),
   const BmMediaItem(
@@ -123,7 +123,7 @@ final List<BmMediaItem> demoStreamingResults = [
     origin: MediaOrigin.network,
     sourceUri: 'https://example-cdn.com/stream/rooftop-sessions-3.mp4',
     artworkUri: 'https://picsum.photos/seed/bm-s3/800/450',
-    duration: const Duration(minutes: 28, seconds: 10),
+    duration: Duration(minutes: 28, seconds: 10),
     sourceLabel: 'Direct link',
   ),
 ];

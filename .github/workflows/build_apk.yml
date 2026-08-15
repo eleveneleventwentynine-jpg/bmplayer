@@ -116,6 +116,48 @@ jobs:
               print("All required permissions already present.")
           PY
 
+      # Idempotent (guarded by a marker comment): backfills a missing
+      # Android Gradle `namespace` from each plugin's own
+      # AndroidManifest.xml `package` attribute. Several older plugins
+      # (e.g. on_audio_query) don't declare `namespace` in their own
+      # build.gradle, which AGP 8+ requires — this fails the build with
+      # "Namespace not specified" otherwise, and can't be fixed from the
+      # app side except by patching Gradle's evaluation like this.
+      - name: Patch Android namespace fallback for legacy plugins
+        run: |
+          MARKER="bmplayer: namespace fallback for legacy plugins"
+          GRADLE_FILE="android/build.gradle"
+          if ! grep -q "$MARKER" "$GRADLE_FILE"; then
+            cat >> "$GRADLE_FILE" <<'GRADLE'
+
+          // --- bmplayer: namespace fallback for legacy plugins ---
+          // Backfills a missing Android Gradle `namespace` from each
+          // plugin's own AndroidManifest.xml `package` attribute, for
+          // plugins that haven't been updated for AGP 8's requirement
+          // that every module declare one explicitly.
+          subprojects { subproject ->
+              subproject.afterEvaluate { evaluatedProject ->
+                  def androidExtension = evaluatedProject.extensions.findByName('android')
+                  if (androidExtension != null &&
+                      androidExtension.hasProperty('namespace') &&
+                      androidExtension.namespace == null) {
+                      def manifestFile = evaluatedProject.file('src/main/AndroidManifest.xml')
+                      if (manifestFile.exists()) {
+                          def manifestXml = new XmlSlurper().parse(manifestFile)
+                          def packageName = manifestXml.@package?.text()
+                          if (packageName) {
+                              androidExtension.namespace = packageName
+                          }
+                      }
+                  }
+              }
+          }
+          GRADLE
+            echo "Appended namespace fallback to $GRADLE_FILE"
+          else
+            echo "Namespace fallback already present — skipping."
+          fi
+
       # Auto-formats the code and commits the result back to the branch,
       # so nobody has to remember to run `dart format` locally. Skipped on
       # PRs from forks, which don't have write access to push a commit.

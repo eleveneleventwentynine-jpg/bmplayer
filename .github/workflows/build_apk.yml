@@ -169,42 +169,67 @@ jobs:
             echo "Namespace fallback already present — skipping."
           fi
 
-      # Idempotent (guarded by a marker comment): several older plugins
-      # (e.g. on_audio_query) don't set kotlinOptions.jvmTarget in their
-      # own build.gradle. Their Java compile task defaults to 1.8, but
-      # their Kotlin compile task picks up whatever JDK is running Gradle
-      # (17 here), and Gradle refuses to build when those two disagree
-      # within the same module. Rather than touch the plugin's own
-      # (pub-cache-managed, unmodifiable) build.gradle, this brings every
-      # subproject's Kotlin target down to match Java's 1.8 globally.
-      - name: Align Kotlin JVM target with Java target for legacy plugins
+      # Idempotent (guarded by a marker comment): older plugins set Java
+      # and Kotlin compile targets inconsistently with each other — some
+      # (on_audio_query) leave Kotlin at the Gradle JVM's version (17)
+      # while pinning Java to 1.8; others (photo_manager) do the reverse.
+      # A fixed one-direction override (e.g. "force everything to 1.8")
+      # fixes one and breaks the other, so this forces BOTH Java and
+      # Kotlin to the same version (17) for every subproject, applied via
+      # afterEvaluate so it runs after each plugin's own build.gradle has
+      # already set its (inconsistent) values and reliably overrides them.
+      # ':app' is skipped and the registration is guarded with try/catch,
+      # since Flutter's template forces ':app' to evaluate early via
+      # evaluationDependsOn, which can make afterEvaluate throw
+      # "already evaluated" for that one project specifically.
+      - name: Align Java and Kotlin compile targets for legacy plugins
         run: |
-          MARKER="bmplayer: align kotlin jvm target"
+          MARKER="bmplayer: align java and kotlin compile targets"
           GRADLE_FILE="android/build.gradle"
           if ! grep -q "$MARKER" "$GRADLE_FILE"; then
             cat >> "$GRADLE_FILE" <<'GRADLE'
 
-          // --- bmplayer: align kotlin jvm target ---
-          // Some plugins' Kotlin compile tasks default to the Gradle JVM's
-          // version (17 in this CI) while their own Java compile tasks
-          // stay at 1.8, which Gradle rejects as inconsistent within one
-          // module. Force Kotlin down to 1.8 to match, using dynamic
-          // Groovy dispatch (tasks.matching + configureEach) so this
-          // doesn't need the Kotlin Gradle plugin on this script's own
-          // compile-time classpath.
+          // --- bmplayer: align java and kotlin compile targets ---
+          // Forces both Java and Kotlin compile targets to the same
+          // version (17) for every subproject, overriding whatever
+          // inconsistent values individual plugins set between their own
+          // Java and Kotlin tasks. Runs in afterEvaluate so it executes
+          // after each plugin's own build.gradle has already configured
+          // itself, and is wrapped defensively since ':app' evaluates
+          // early (via evaluationDependsOn) and can't accept a late
+          // afterEvaluate registration.
           subprojects { subproject ->
-              subproject.plugins.withId("org.jetbrains.kotlin.android") {
-                  subproject.tasks.matching { it.name.contains("compile") && it.name.contains("Kotlin") }.configureEach { task ->
-                      task.kotlinOptions {
-                          jvmTarget = "1.8"
+              if (subproject.path != ':app') {
+                  try {
+                      subproject.afterEvaluate { evaluatedProject ->
+                          def androidExt = evaluatedProject.extensions.findByName('android')
+                          if (androidExt != null) {
+                              try {
+                                  androidExt.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+                                  androidExt.compileOptions.targetCompatibility = JavaVersion.VERSION_17
+                              } catch (ignored) {
+                                  // No compileOptions on this extension — nothing to align.
+                              }
+                          }
+                          evaluatedProject.tasks.matching { it.name.contains("compile") && it.name.contains("Kotlin") }.configureEach { task ->
+                              try {
+                                  task.kotlinOptions {
+                                      jvmTarget = "17"
+                                  }
+                              } catch (ignored) {
+                                  // Not a Kotlin compile task after all — skip.
+                              }
+                          }
                       }
+                  } catch (IllegalStateException ignored) {
+                      // Already evaluated (e.g. forced early via evaluationDependsOn) — nothing to align.
                   }
               }
           }
           GRADLE
-            echo "Appended Kotlin JVM target alignment to $GRADLE_FILE"
+            echo "Appended Java/Kotlin target alignment to $GRADLE_FILE"
           else
-            echo "Kotlin JVM target alignment already present — skipping."
+            echo "Java/Kotlin target alignment already present — skipping."
           fi
 
       # Idempotent: bumps compileSdk to whatever the highest-requiring

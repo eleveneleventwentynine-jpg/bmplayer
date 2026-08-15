@@ -18,8 +18,7 @@ final playerServiceProvider =
 
 // --- Local library -----------------------------------------------------
 
-final libraryServiceProvider =
-    Provider<LibraryService>((ref) => LibraryService());
+final libraryServiceProvider = Provider<LibraryService>((ref) => LibraryService());
 
 final libraryControllerProvider =
     StateNotifierProvider<LibraryController, LibraryState>(
@@ -28,8 +27,7 @@ final libraryControllerProvider =
 
 // --- Persistence: playlists & favorites ---------------------------------
 
-final databaseServiceProvider =
-    Provider<DatabaseService>((ref) => DatabaseService());
+final databaseServiceProvider = Provider<DatabaseService>((ref) => DatabaseService());
 
 final playlistsControllerProvider =
     StateNotifierProvider<PlaylistsController, List<BmPlaylist>>(

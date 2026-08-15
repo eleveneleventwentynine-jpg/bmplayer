@@ -55,7 +55,8 @@ class LibraryState {
 /// [LibraryLoadStatus.initial] with demo items visible so the UI never
 /// renders empty while the first scan runs.
 class LibraryController extends StateNotifier<LibraryState> {
-  LibraryController(this._service) : super(LibraryState(items: demoLibrary));
+  LibraryController(this._service)
+      : super(LibraryState(items: demoLibrary));
 
   final LibraryService _service;
 

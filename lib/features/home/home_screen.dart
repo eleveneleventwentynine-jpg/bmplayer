@@ -37,8 +37,7 @@ class HomeScreen extends ConsumerWidget {
           toolbarHeight: 76,
           title: Row(
             children: [
-              Text('bmplayer',
-                  style: Theme.of(context).textTheme.displayMedium),
+              Text('bmplayer', style: Theme.of(context).textTheme.displayMedium),
             ],
           ),
           actions: [
@@ -104,8 +103,8 @@ class HomeScreen extends ConsumerWidget {
                     .map((item) => MediaRow(
                           item: item,
                           isCurrent: playback.current?.id == item.id,
-                          isPlaying: playback.isPlaying &&
-                              playback.current?.id == item.id,
+                          isPlaying:
+                              playback.isPlaying && playback.current?.id == item.id,
                           onTap: () => play(item, queue: library),
                         ))
                     .toList(),
@@ -131,62 +130,59 @@ class HomeScreen extends ConsumerWidget {
               itemBuilder: (context, i) {
                 if (i == playlists.length) {
                   return _CreatePlaylistCard(
-                    onCreate: (name) => ref
-                        .read(playlistsControllerProvider.notifier)
-                        .create(name),
+                    onCreate: (name) =>
+                        ref.read(playlistsControllerProvider.notifier).create(name),
                   );
                 }
                 final pl = playlists[i];
                 return GestureDetector(
-                  onLongPress: () =>
-                      _showPlaylistOptions(context, ref, pl.id, pl.name),
+                  onLongPress: () => _showPlaylistOptions(context, ref, pl.id, pl.name),
                   child: GlassContainer(
-                    borderRadius: 18,
-                    onTap: () {
-                      if (pl.items.isNotEmpty) {
-                        play(pl.items.first, queue: pl.items);
-                      }
-                    },
-                    child: SizedBox(
-                      width: 128,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(18)),
-                            child: pl.coverUri != null
-                                ? CachedNetworkImage(
-                                    imageUrl: pl.coverUri!,
-                                    height: 100,
-                                    width: 128,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Container(
-                                    height: 100,
-                                    color: AppColors.glassFillStrong,
-                                  ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  pl.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyLarge,
+                  borderRadius: 18,
+                  onTap: () {
+                    if (pl.items.isNotEmpty) {
+                      play(pl.items.first, queue: pl.items);
+                    }
+                  },
+                  child: SizedBox(
+                    width: 128,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(18)),
+                          child: pl.coverUri != null
+                              ? CachedNetworkImage(
+                                  imageUrl: pl.coverUri!,
+                                  height: 100,
+                                  width: 128,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  height: 100,
+                                  color: AppColors.glassFillStrong,
                                 ),
-                                Text('${pl.trackCount} tracks',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium),
-                              ],
-                            ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                pl.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              Text('${pl.trackCount} tracks',
+                                  style: Theme.of(context).textTheme.bodyMedium),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
                   ),
                 );
               },
@@ -246,8 +242,7 @@ class _CreatePlaylistCard extends StatelessWidget {
             children: [
               Icon(Icons.add_rounded, color: AppColors.driftAqua, size: 28),
               SizedBox(height: 6),
-              Text('New playlist',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              Text('New playlist', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
             ],
           ),
         ),
@@ -293,8 +288,7 @@ Future<void> _showPlaylistOptions(
                           onPressed: () => Navigator.pop(context),
                           child: const Text('Cancel')),
                       FilledButton(
-                          onPressed: () =>
-                              Navigator.pop(context, controller.text),
+                          onPressed: () => Navigator.pop(context, controller.text),
                           child: const Text('Save')),
                     ],
                   ),
@@ -307,14 +301,11 @@ Future<void> _showPlaylistOptions(
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline_rounded,
-                  color: AppColors.danger),
+              leading: const Icon(Icons.delete_outline_rounded, color: AppColors.danger),
               title: const Text('Delete playlist'),
               onTap: () {
                 Navigator.pop(context);
-                ref
-                    .read(playlistsControllerProvider.notifier)
-                    .delete(playlistId);
+                ref.read(playlistsControllerProvider.notifier).delete(playlistId);
               },
             ),
           ],

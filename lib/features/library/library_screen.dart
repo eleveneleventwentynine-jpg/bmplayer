@@ -57,8 +57,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             toolbarHeight: 76,
-            title: Text('Library',
-                style: Theme.of(context).textTheme.displayMedium),
+            title:
+                Text('Library', style: Theme.of(context).textTheme.displayMedium),
             actions: [
               if (libraryState.status == LibraryLoadStatus.loading)
                 const Padding(

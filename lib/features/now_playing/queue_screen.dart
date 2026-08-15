@@ -58,7 +58,8 @@ class _QueueSheet extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Up next', style: Theme.of(context).textTheme.headlineMedium),
+                      Text('Up next',
+                          style: Theme.of(context).textTheme.headlineMedium),
                       Text(
                         '${queue.length} ${queue.length == 1 ? 'item' : 'items'}',
                         style: Theme.of(context).textTheme.bodyMedium,
@@ -74,7 +75,8 @@ class _QueueSheet extends ConsumerWidget {
                         )
                       : ReorderableListView.builder(
                           scrollController: scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
                           itemCount: queue.length,
                           onReorder: playerService.reorderQueue,
                           itemBuilder: (context, i) {
@@ -82,7 +84,8 @@ class _QueueSheet extends ConsumerWidget {
                             final isCurrent = i == playback.currentIndex;
                             return Padding(
                               key: ValueKey(item.id),
-                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
                               child: Material(
                                 color: isCurrent
                                     ? AppColors.glassFillStrong
@@ -120,7 +123,8 @@ class _QueueSheet extends ConsumerWidget {
                                     children: [
                                       if (isCurrent)
                                         Padding(
-                                          padding: const EdgeInsets.only(right: 10),
+                                          padding:
+                                              const EdgeInsets.only(right: 10),
                                           child: AnimatedWaveform(
                                             isPlaying: playback.isPlaying,
                                             barCount: 3,
@@ -128,8 +132,10 @@ class _QueueSheet extends ConsumerWidget {
                                           ),
                                         ),
                                       IconButton(
-                                        icon: const Icon(Icons.close_rounded, size: 18),
-                                        onPressed: () => playerService.removeFromQueue(i),
+                                        icon: const Icon(Icons.close_rounded,
+                                            size: 18),
+                                        onPressed: () =>
+                                            playerService.removeFromQueue(i),
                                       ),
                                       const Icon(Icons.drag_handle_rounded,
                                           color: AppColors.textFaint),

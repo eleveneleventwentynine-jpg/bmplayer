@@ -68,8 +68,7 @@ class MediaArtwork extends StatelessWidget {
             );
     } else if (uri.startsWith('videothumb://')) {
       final id = uri.substring('videothumb://'.length);
-      content =
-          _VideoThumb(assetId: id, width: width, height: height, fit: fit);
+      content = _VideoThumb(assetId: id, width: width, height: height, fit: fit);
     } else {
       content = _fallback();
     }
@@ -115,8 +114,7 @@ class _VideoThumb extends StatelessWidget {
       builder: (context, assetSnap) {
         final asset = assetSnap.data;
         if (asset == null) {
-          return Container(
-              width: width, height: height, color: AppColors.glassFillStrong);
+          return Container(width: width, height: height, color: AppColors.glassFillStrong);
         }
         return FutureBuilder<Uint8List?>(
           future: asset.thumbnailDataWithSize(
@@ -125,10 +123,7 @@ class _VideoThumb extends StatelessWidget {
           builder: (context, thumbSnap) {
             final bytes = thumbSnap.data;
             if (bytes == null) {
-              return Container(
-                  width: width,
-                  height: height,
-                  color: AppColors.glassFillStrong);
+              return Container(width: width, height: height, color: AppColors.glassFillStrong);
             }
             return Image.memory(bytes, width: width, height: height, fit: fit);
           },

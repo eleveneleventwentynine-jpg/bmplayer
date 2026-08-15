@@ -47,8 +47,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           toolbarHeight: 76,
-          title: Text('Discover',
-              style: Theme.of(context).textTheme.displayMedium),
+          title: Text('Discover', style: Theme.of(context).textTheme.displayMedium),
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
@@ -66,8 +65,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   border: InputBorder.none,
                   hintText: 'Search YouTube…',
                   hintStyle: const TextStyle(color: AppColors.textFaint),
-                  icon: const Icon(Icons.search_rounded,
-                      color: AppColors.textMuted),
+                  icon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
                   suffixIcon: discover.status == DiscoverStatus.searching
                       ? const Padding(
                           padding: EdgeInsets.all(12),

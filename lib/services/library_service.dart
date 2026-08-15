@@ -26,8 +26,7 @@ class LibraryService {
       final granted = audioStatus.isGranted || videoStatus.isGranted;
       if (granted) return LibraryPermissionStatus.granted;
 
-      if (audioStatus.isPermanentlyDenied ||
-          videoStatus.isPermanentlyDenied) {
+      if (audioStatus.isPermanentlyDenied || videoStatus.isPermanentlyDenied) {
         return LibraryPermissionStatus.permanentlyDenied;
       }
 

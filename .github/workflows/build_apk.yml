@@ -169,6 +169,71 @@ jobs:
             echo "Namespace fallback already present — skipping."
           fi
 
+      # Idempotent (guarded by a marker comment): several older plugins
+      # (e.g. on_audio_query) don't set kotlinOptions.jvmTarget in their
+      # own build.gradle. Their Java compile task defaults to 1.8, but
+      # their Kotlin compile task picks up whatever JDK is running Gradle
+      # (17 here), and Gradle refuses to build when those two disagree
+      # within the same module. Rather than touch the plugin's own
+      # (pub-cache-managed, unmodifiable) build.gradle, this brings every
+      # subproject's Kotlin target down to match Java's 1.8 globally.
+      - name: Align Kotlin JVM target with Java target for legacy plugins
+        run: |
+          MARKER="bmplayer: align kotlin jvm target"
+          GRADLE_FILE="android/build.gradle"
+          if ! grep -q "$MARKER" "$GRADLE_FILE"; then
+            cat >> "$GRADLE_FILE" <<'GRADLE'
+
+          // --- bmplayer: align kotlin jvm target ---
+          // Some plugins' Kotlin compile tasks default to the Gradle JVM's
+          // version (17 in this CI) while their own Java compile tasks
+          // stay at 1.8, which Gradle rejects as inconsistent within one
+          // module. Force Kotlin down to 1.8 to match, using dynamic
+          // Groovy dispatch (tasks.matching + configureEach) so this
+          // doesn't need the Kotlin Gradle plugin on this script's own
+          // compile-time classpath.
+          subprojects { subproject ->
+              subproject.plugins.withId("org.jetbrains.kotlin.android") {
+                  subproject.tasks.matching { it.name.contains("compile") && it.name.contains("Kotlin") }.configureEach { task ->
+                      task.kotlinOptions {
+                          jvmTarget = "1.8"
+                      }
+                  }
+              }
+          }
+          GRADLE
+            echo "Appended Kotlin JVM target alignment to $GRADLE_FILE"
+          else
+            echo "Kotlin JVM target alignment already present — skipping."
+          fi
+
+      # Idempotent: bumps compileSdk to whatever the highest-requiring
+      # plugin needs (currently photo_manager, at 36) instead of Flutter's
+      # default. compileSdk is backward compatible, so bumping it is safe
+      # and doesn't require also raising minSdk/targetSdk.
+      - name: Ensure compileSdk meets plugin requirements
+        run: |
+          python3 - <<'PY'
+          import re
+
+          path = "android/app/build.gradle"
+          with open(path) as f:
+              content = f.read()
+
+          required_sdk = 36
+          pattern = re.compile(r"compileSdk(Version)?\s*=?\s*flutter\.compileSdkVersion")
+
+          if pattern.search(content):
+              content = pattern.sub(f"compileSdk = {required_sdk}", content)
+              with open(path, "w") as f:
+                  f.write(content)
+              print(f"Set compileSdk = {required_sdk} in {path}")
+          elif re.search(rf"compileSdk(Version)?\s*=?\s*{required_sdk}\b", content):
+              print(f"compileSdk already {required_sdk} — skipping.")
+          else:
+              print(f"Could not find the expected compileSdk line in {path} — leaving it untouched.")
+          PY
+
       # Auto-formats the code and commits the result back to the branch,
       # so nobody has to remember to run `dart format` locally. Skipped on
       # PRs from forks, which don't have write access to push a commit.
